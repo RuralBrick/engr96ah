@@ -6,7 +6,10 @@ using UnityEngine.InputSystem;
 
 public class PlayerScript : MonoBehaviour
 {
-    bool movingFoward = false;
+    public float moveSpeed;
+    public float turnSpeed;
+
+    Vector2 move;
 
     // Start is called before the first frame update
     void Start()
@@ -16,17 +19,13 @@ public class PlayerScript : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        Vector2 move = context.ReadValue<Vector2>();
-        movingFoward = move.y > 0;
+        move = context.ReadValue<Vector2>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (movingFoward)
-        {
-            Debug.Log("Forward");
-            transform.Translate(Vector3.forward * Time.deltaTime);
-        }
+        transform.Translate(moveSpeed * move.y * Vector3.forward * Time.deltaTime);
+        transform.Rotate(0, turnSpeed * move.x * Time.deltaTime, 0);
     }
 }
