@@ -8,11 +8,16 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] float moveSpeed;
     [SerializeField] float turnSpeed;
     [SerializeField] float jumpPower;
+    [SerializeField] float dashPower;
+    [SerializeField] float dashTime;
+    [SerializeField] float dashCooldown;
 
     new Rigidbody rigidbody;
 
     Vector2 move;
     uint floorsTouched = 0;
+    bool dashing = false;
+    bool dashCooling = false;
 
     // Start is called before the first frame update
     void Start()
@@ -34,10 +39,34 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    public void OnDash(InputAction.CallbackContext context)
+    {
+        if (!dashing && !dashCooling)
+        {
+            dashing = true;
+            Invoke("StopDash", dashTime);
+        }
+    }
+
+    void StopDash()
+    {
+        dashCooling = true;
+        dashing = false;
+        Invoke("EnableDash", dashCooldown);
+    }
+
+    void EnableDash()
+    {
+        dashCooling = false;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(moveSpeed * move.y * Vector3.forward * Time.deltaTime);
+        Vector3 displacement = moveSpeed * move.y * Vector3.forward * Time.deltaTime;
+        if (dashing)
+            displacement *= dashPower;
+        transform.Translate(displacement);
         if (!Mathf.Approximately(move.x, 0))
         {
             rigidbody.angularVelocity = Vector3.zero;
